@@ -27,10 +27,12 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        widget.cpp
+        widget.cpp \
+    cameraworker.cpp
 
 HEADERS += \
-        widget.h
+        widget.h \
+    cameraworker.h
 
 FORMS += \
         widget.ui
