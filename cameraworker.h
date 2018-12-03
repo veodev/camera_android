@@ -7,6 +7,8 @@
 #include <QCameraImageCapture>
 #include <QCameraViewfinder>
 #include <QVideoProbe>
+#include <QElapsedTimer>
+#include <atomic>
 
 class CameraWorker : public QObject
 {
@@ -16,6 +18,15 @@ public:
 
     void init();
     void capture();
+    void startCamera();
+    void stopCamera();
+    void startViewFinder();
+    void stopViewFinder();
+
+private:
+    static void imageCleanupHandler(void* info);
+    int* convertYUV420_NV21toRGB8888(unsigned char data[], int width, int height);
+    int convertYUVtoRGB(int y, int u, int v);
 
 signals:
     void doImageCaptured(int id, const QImage& preview);
@@ -31,7 +42,9 @@ private:
     QCamera* _camera;
     QCameraFocus* _cameraFocus;
     QCameraImageCapture* _cameraImageCapture;
-    QVideoProbe* _videoProbe;
+    QVideoProbe* _videoProbe;    
+    QElapsedTimer* _elapsedTimer;
+    std::atomic_bool _isViewFinderEnabled;
 };
 
 #endif  // CAMERAWORKER_H
