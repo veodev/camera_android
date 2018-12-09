@@ -16,18 +16,21 @@ Widget::Widget(QWidget* parent)
     connect(_cameraWorkerThread, &QThread::finished, this, &Widget::onCameraThreadFinished);    
     connect(_cameraWorker, &CameraWorker::doImageCaptured, this, &Widget::onImageCaptured);
     connect(_cameraWorker, &CameraWorker::doReadyForCaptureChanged, this, &Widget::onReadyForCaptureChanged);
-    connect(_cameraWorker, &CameraWorker::doImageViewfinder, this, &Widget::onImageViewfinder, Qt::QueuedConnection);
+    connect(_cameraWorker, &CameraWorker::doImageViewfinder, this, &Widget::onImageViewfinder);
+    connect(_cameraWorker, &CameraWorker::doCameraModeChanged, this, &Widget::onCameraModeChanged);
     connect(this, &Widget::doCapture, _cameraWorker, &CameraWorker::capture);
     connect(this, &Widget::doStart, _cameraWorker, &CameraWorker::startCamera);
     connect(this, &Widget::doStop, _cameraWorker, &CameraWorker::stopCamera);
+    connect(this, &Widget::doPhotoMode, _cameraWorker, &CameraWorker::photoMode);
+    connect(this, &Widget::doVideoMode, _cameraWorker, &CameraWorker::videoMode);
+    connect(this, &Widget::doRestart, _cameraWorker, &CameraWorker::reinit);
 
     setFocusPolicy(Qt::StrongFocus);
 
     _cameraWorker->moveToThread(_cameraWorkerThread);
     _cameraWorkerThread->start();
 
-    connect(&_timer, &QTimer::timeout, this, &Widget::onTimerTimeout);
-    _timer.start(1000);
+    connect(&_timer, &QTimer::timeout, this, &Widget::onTimerTimeout);    
 }
 
 Widget::~Widget()
@@ -38,6 +41,17 @@ Widget::~Widget()
 void Widget::onCameraThreadFinished()
 {
     qDebug() << "CAMERA THREAD IS FINISHED!";
+}
+
+void Widget::blockModesButton(bool isBlock)
+{
+    ui->photoButton->setDisabled(isBlock);
+    ui->videoButton->setDisabled(isBlock);
+}
+
+void Widget::unblockModesButton()
+{
+    blockModesButton(false);
 }
 
 void Widget::keyPressEvent(QKeyEvent *ke)
@@ -95,4 +109,28 @@ void Widget::on_stopButton_released()
 void Widget::onTimerTimeout()
 {
     qDebug() << this->hasFocus();
+}
+
+void Widget::onCameraModeChanged()
+{
+    blockModesButton(false);
+}
+
+void Widget::on_photoButton_released()
+{
+    blockModesButton(true);
+    emit doPhotoMode();
+    QTimer::singleShot(2000, this, &Widget::unblockModesButton);
+}
+
+void Widget::on_videoButton_released()
+{
+    blockModesButton(true);
+    emit doVideoMode();
+    QTimer::singleShot(2000, this, &Widget::unblockModesButton);
+}
+
+void Widget::on_restartButton_released()
+{
+    emit doRestart();
 }

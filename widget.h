@@ -24,6 +24,8 @@ public:
     ~Widget();
 
     void onCameraThreadFinished();
+    void blockModesButton(bool isBlock);
+    void unblockModesButton();
 
 protected:
     void keyPressEvent(QKeyEvent* event);
@@ -32,6 +34,9 @@ signals:
     void doCapture();
     void doStart();
     void doStop();
+    void doPhotoMode();
+    void doVideoMode();
+    void doRestart();
 
 private slots:
     void onReadyForCaptureChanged(bool ready);
@@ -42,12 +47,20 @@ private slots:
     void on_startButton_released();
     void on_stopButton_released();
     void onTimerTimeout();
+    void onCameraModeChanged();
+
+    void on_photoButton_released();
+
+    void on_videoButton_released();
+
+    void on_restartButton_released();
 
 private:
     Ui::Widget* ui;
     QThread* _cameraWorkerThread;
     CameraWorker* _cameraWorker;    
     QTimer _timer;
+    QCamera::CaptureMode _currentMode;
 };
 
 #endif  // WIDGET_H
