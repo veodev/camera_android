@@ -26,6 +26,7 @@ public:
     void onCameraThreadFinished();
     void blockModesButton(bool isBlock);
     void unblockModesButton();
+    void backToViewFinder();
 
 protected:
     void keyPressEvent(QKeyEvent* event);
@@ -37,6 +38,8 @@ signals:
     void doPhotoMode();
     void doVideoMode();
     void doRestart();
+    void doZoomIn();
+    void doZoomOut();
 
 private slots:
     void onReadyForCaptureChanged(bool ready);
@@ -54,6 +57,10 @@ private slots:
     void on_videoButton_released();
 
     void on_restartButton_released();
+
+    void on_minusButton_released();
+
+    void on_plusButton_released();
 
 private:
     Ui::Widget* ui;

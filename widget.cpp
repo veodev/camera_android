@@ -24,6 +24,8 @@ Widget::Widget(QWidget* parent)
     connect(this, &Widget::doPhotoMode, _cameraWorker, &CameraWorker::photoMode);
     connect(this, &Widget::doVideoMode, _cameraWorker, &CameraWorker::videoMode);
     connect(this, &Widget::doRestart, _cameraWorker, &CameraWorker::reinit);
+    connect(this, &Widget::doZoomIn, _cameraWorker, &CameraWorker::onZoomIn);
+    connect(this, &Widget::doZoomOut, _cameraWorker, &CameraWorker::onZoomOut);
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -54,6 +56,12 @@ void Widget::unblockModesButton()
     blockModesButton(false);
 }
 
+void Widget::backToViewFinder()
+{
+    _cameraWorker->startViewFinder();
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
 void Widget::keyPressEvent(QKeyEvent *ke)
 {    
     qDebug() << ke->key();
@@ -71,7 +79,7 @@ void Widget::onImageCaptured(int id, const QImage& preview)
 {
     ui->stackedWidget->setCurrentIndex(1);
     ui->captureLabel->setPixmap(QPixmap::fromImage(preview).scaled(ui->captureLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    _cameraWorker->startViewFinder();    
+    QTimer::singleShot(2000, this, &Widget::backToViewFinder);
 }
 
 void Widget::onImageViewfinder(const QImage& preview)
@@ -133,4 +141,14 @@ void Widget::on_videoButton_released()
 void Widget::on_restartButton_released()
 {
     emit doRestart();
+}
+
+void Widget::on_minusButton_released()
+{
+    emit doZoomOut();
+}
+
+void Widget::on_plusButton_released()
+{
+    emit doZoomIn();
 }
